@@ -1,0 +1,20 @@
+{
+  "name": "evernote-translator",
+  "version": "1.0.0",
+  "description": "Tool for translating HTML exports of Evernote documents into formatted HTML documents.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "evernote",
+    "html",
+    "enex",
+    "translator",
+    "node",
+    "translator",
+    "formatting"
+  ],
+  "author": "Bartholomew Joyce <bartholomew.michael.joyce@gmail.com> (https://github.com/bartjoyce/)",
+  "license": "ISC"
+}
