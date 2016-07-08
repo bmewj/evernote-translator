@@ -26,7 +26,7 @@ evernoteTranslator.translate({
 ```
 
 Keep in mind, though, that the resulting HTML documents will be no
-different from exporting HTMl documents straight out of Evernote in
+different from exporting HTML documents straight out of Evernote in
 the first place. The next section covers how you can manipulate the
 output data.
 
