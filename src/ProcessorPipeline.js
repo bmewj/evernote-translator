@@ -1,9 +1,9 @@
-function ProcessorPipeline() {
-	this.processors = [
+function ProcessorPipeline(copy) {
+	this.processors = copy ? copy.processors.slice(0) : [
 		require('./processors/mediaTranslator'),
 		require('./processors/cryptTranslator'),
 		require('./processors/todoTranslator'),
-		require('./processors/htmlWrapper')
+		require('./processors/htmlWrapper'),
 	];
 
 	return this;
