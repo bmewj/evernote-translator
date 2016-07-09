@@ -17,13 +17,18 @@ do the following:
 var evernoteTranslator = require('evernote-translator');
 
 evernoteTranslator.translate({
-    inputFile: /* file name of ENEX document */,
-    outputFile: /* file name of HTML document */,
-    resourceDir: /* directory where resources should be copied to */,
+    inputFile: '/file/name/of/input/document.enex',
+    outputFile: '/file/name/of/output/index.html',
+    resourceDir: '/file/name/of/output/resources/',
     onFailure: function() {},
     onSuccess: function() {}
 });
 ```
+
+`inputFile` is the file name of the .ENEX document to be read.  
+`outputFile` is the file name of the resulting HTML document.  
+`resourceDir` is the directory where you want the embedded resources
+to be stored.
 
 Keep in mind, though, that the resulting HTML documents will be no
 different from exporting HTML documents straight out of Evernote in
@@ -42,15 +47,14 @@ var evernoteTranslator = require('evernote-translator');
 var customStyles = '<style>body { font-family: \'Helvetica Neue\', sans-serif; }</style>';
 
 evernoteTranslator.translate({
-    inputFile: /* file name of ENEX document */,
-    outputDir: /* directory name of HTML document */,
-    resourceDir: /* directory where resources should be copied to */,
-    onFailure: function() {},
+    /* ... */
+    outputDir: '/file/name/of/output/',
+    /* ... */
     onSuccess: function(outputString) {
         var i = outputString.indexOf('</head>');
 
         var newString = outputString.substring(0, i) + customStyles + outputString.substring(i);
-        fs.writeFileSync(/* file name of HTML document */, newString);
+        fs.writeFile('/file/name/of/output/index.html', newString, 'utf8');
     }
 });
 ```
@@ -68,6 +72,10 @@ has been parsed and its content converted into a plain JS object
 structure, it is passed through the processor pipeline.
 
 The default pipeline looks a bit like this:
+```
+mediaTranslator -> cryptTranslator -> todoTranslator -> htmlWrapper
+```
+
 
 1. `mediaTranslator`: Converts `<en-media/>` tags into correct HTML.
 2. `cryptTranslator`: Replaces `<en-crypt/>` tags with `[Encrypted in Evernote]`.
