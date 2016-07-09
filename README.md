@@ -41,17 +41,14 @@ For simple changes you might want to consider the naive approach,
 which would be to manipulate the output string:
 
 ```javascript
-var fs = require('fs');
-var evernoteTranslator = require('evernote-translator');
-
-var customStyles = '<style>body { font-family: \'Helvetica Neue\', sans-serif; }</style>';
-
 evernoteTranslator.translate({
     /* ... */
     outputDir: '/file/name/of/output/',
     /* ... */
     onSuccess: function(outputString) {
         var i = outputString.indexOf('</head>');
+
+        var customStyles = '<style>body { font-family: \'Helvetica Neue\', sans-serif; }</style>';
 
         var newString = outputString.substring(0, i) + customStyles + outputString.substring(i);
         fs.writeFile('/file/name/of/output/index.html', newString, 'utf8');
