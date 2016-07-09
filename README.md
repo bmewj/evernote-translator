@@ -43,6 +43,7 @@ var customStyles = '<style>body { font-family: \'Helvetica Neue\', sans-serif; }
 
 evernoteTranslator.translate({
     inputFile: /* file name of ENEX document */,
+    outputDir: /* directory name of HTML document */,
     resourceDir: /* directory where resources should be copied to */,
     onFailure: function() {},
     onSuccess: function(outputString) {
@@ -53,6 +54,11 @@ evernoteTranslator.translate({
     }
 });
 ```
+
+Note that you have to specify an `outputDir` instead of an `outputFile`
+when doing the writing to disk yourself. It is necessary to tell the
+translator about the output directory so that it can generate correct
+URLs for embedded resources.
 
 ### Manipulating the HTML (correctly)
 
@@ -72,8 +78,6 @@ In order to inject our custom CSS like before, we have to add a
 new processor to the processor pipeline:
 
 ```javascript
-var evernoteTranslator = require('evernote-translator');
-
 var customPipeline = new evernoteTranslator.ProcessorPipeline();
 customPipeline.insertAfter('htmlWrapper', {
     name: 'cssInjector',
@@ -85,7 +89,7 @@ customPipeline.insertAfter('htmlWrapper', {
         var headTag = dom[1].children[0];
         headTag.children.push({
             tag: 'style',
-            children: ['body { font-family: \'Helvetica Neue\', sans-serif; }'];
+            children: ['body { font-family: \'Helvetica Neue\', sans-serif; }']
         });
 
         return dom;
@@ -93,12 +97,58 @@ customPipeline.insertAfter('htmlWrapper', {
 });
 
 evernoteTranslator.translate({
-    inputFile: /* file name of ENEX document */,
-    outputFile: /* file name of HTML document */,
-    resourceDir: /* directory where resources should be copied to */,
+    /* ... */
     processorPipeline: customPipeline,
-    onFailure: function() {},
-    onSuccess: function() {}
+    /* ... */
 });
 
 ```
+
+### Dealing with resources
+
+If you specify a `resourceDir` then embedded resources will be dealt with
+automatically. All resources will be placed in the specified directory with
+this naming convention:
+
+```
+./(md5 checksum of file).(extension)
+```
+
+For more versatility, you can pass a `nameResource` function to the translator
+instead of a `resourceDir`.
+
+```javascript
+evernoteTranslator.translate({
+    /* ... */
+    nameResource: function(fileName, mimeType, checksum) {
+        if (mimeType === 'image/jpeg') {
+            return checksum + '.jpg';
+        } else {
+            return false; // you can conditionally ignore certain resources
+        }
+    },
+    /* ... */
+});
+```
+
+For maximum versatility, you can pass a `handleResource` function to the translator
+instead of a `nameResource` function.
+
+```javascript
+evernoteTranslator.translate({
+    /* ... */
+    handleResource: function(fileName, mimeType, buffer, checksum) {
+        if (mimeType === 'image/jpeg') {
+            fs.writeFile(checksum + '.jpg', buffer);
+            return checksum + '.jpg';
+        } else {
+            return false;
+        }
+    },
+    /* ... */
+});
+```
+
+With this last option you have the responsibility of writing the resources
+to the file system yourself. You must return the URL for the resource relative
+to the HTML document (or `false`, if you've chosen to ignore the resource).
