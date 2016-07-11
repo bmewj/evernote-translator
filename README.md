@@ -271,7 +271,7 @@ This will be our Evernote note:
 
 > Some content
 > Some more content
-> ![footer]
+> !\[footer\]
 
 This is how we can program in our footer insert:
 
@@ -318,7 +318,7 @@ Optionally, you can accept a single string argument:
 
 > Some content
 > Some more content
-> ![footer: small]
+> !\[footer: small\]
 
 The argument will be passed to your insert function.
 
