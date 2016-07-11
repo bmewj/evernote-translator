@@ -70,16 +70,17 @@ structure, it is passed through the processor pipeline.
 
 The default pipeline looks a bit like this:
 ```
-mediaTranslator -> cryptTranslator -> todoTranslator -> annotationReader -> annotationRemover -> htmlWrapper
+mediaTranslator -> cryptTranslator -> todoTranslator -> insertProcessor -> annotationReader -> annotationRemover -> htmlWrapper
 ```
 
 
 1. `mediaTranslator`: Converts `<en-media/>` tags into correct HTML.
 2. `cryptTranslator`: Replaces `<en-crypt/>` tags with `[Encrypted in Evernote]`.
 3. `todoTranslator`: Replaces `<en-todo/>` tags with checkboxes.
-4. `annotationReader`: Finds annotations present in the file (explained below).
-5. `annotationRemover`: Removes all annotations found.
-4. `htmlWrapper`: Wraps the document with `<html>` and `<body>` tags and such.
+4. `insertProcessor`: Finds inserts present in the file (explained below).
+5. `annotationReader`: Finds annotations present in the file (explained below).
+6. `annotationRemover`: Removes all annotations found.
+7. `htmlWrapper`: Wraps the document with `<html>` and `<body>` tags and such.
 
 In order to inject our custom CSS like before, we have to add a
 new processor to the processor pipeline:
@@ -167,7 +168,7 @@ With this last option you have the responsibility of writing the resources
 to the file system yourself. You must return the URL for the resource relative
 to the HTML document (or `false`, if you've chosen to ignore the resource).
 
-### The annotation system
+### Annotations
 
 The annotation system is a powerful tool when processing documents and making
 them fit for the web. You can annotate a certain line/paragraph/object in your
@@ -251,4 +252,95 @@ The output file will look like this:
         <div style="position: absolute">Some content</div>
     </body>
 </html>
+```
+
+Annotations are an incredibly powerful tool for processing documents.
+
+### Inserts
+
+Annotations are textual ques that apply to line just below the annotation.
+Inserts look exactly like annotations, but instead of applying to the line
+below it, it acts as a que for some other node to be *inserted*.
+
+#### Example
+
+We want some footer on our webpages, but not on all of them. So we can use
+an insert on the pages where we want to *insert* a footer.
+
+This will be our Evernote note:
+
+> Some content
+> Some more content
+> ![footer]
+
+This is how we can program in our footer insert:
+
+```javascript
+function footerInsert() {
+    return {
+        tag: 'footer',
+        style: 'color: #aaa; font-size: 12px;'
+        children: ['Footer content!']
+    };
+}
+
+evernoteTranslator.translate({
+    /* ... */
+    inserts: {
+        'footer': footerInsert
+    },
+    /* ... */
+});
+```
+
+With this code, an input like this:
+
+This note will have the following HTML code:
+
+```html
+<div>Some content</div>
+<div>Some more content</div>
+<div>![footer]</div>
+```
+
+...is turned into this...
+
+```html
+<div>Some content</div>
+<div>Some more content</div>
+<footer style="color: #aaa; font-size: 12px;">Footer content!</footer>
+```
+
+Note that the entire `<div>` that contained the insert has
+been replaced with the footer, not just the insert.
+
+Optionally, you can accept a single string argument:
+
+> Some content
+> Some more content
+> ![footer: small]
+
+The argument will be passed to your insert function.
+
+```javascript
+function footerInsert(arg) {
+    if (arg === 'regular') {
+        /* ... regular footer ... */
+    } else if (arg === 'small') {
+        /* ... small footer ... */
+    } else {
+        return null;
+        /* When nothing is returned, the div
+         * that had the insert is removed instead
+         * of replaced. */
+    }
+}
+
+evernoteTranslator.translate({
+    /* ... */
+    inserts: {
+        'footer': footerInsert
+    },
+    /* ... */
+});
 ```
