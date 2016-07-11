@@ -70,7 +70,7 @@ structure, it is passed through the processor pipeline.
 
 The default pipeline looks a bit like this:
 ```
-mediaTranslator -> cryptTranslator -> todoTranslator -> insertProcessor -> annotationReader -> annotationRemover -> htmlWrapper
+mediaTranslator -> cryptTranslator -> todoTranslator -> ... -> htmlWrapper
 ```
 
 
