@@ -70,13 +70,15 @@ structure, it is passed through the processor pipeline.
 
 The default pipeline looks a bit like this:
 ```
-mediaTranslator -> cryptTranslator -> todoTranslator -> htmlWrapper
+mediaTranslator -> cryptTranslator -> todoTranslator -> annotationReader -> annotationRemover -> htmlWrapper
 ```
 
 
 1. `mediaTranslator`: Converts `<en-media/>` tags into correct HTML.
 2. `cryptTranslator`: Replaces `<en-crypt/>` tags with `[Encrypted in Evernote]`.
 3. `todoTranslator`: Replaces `<en-todo/>` tags with checkboxes.
+4. `annotationReader`: Finds annotations present in the file (explained below).
+5. `annotationRemover`: Removes all annotations found.
 4. `htmlWrapper`: Wraps the document with `<html>` and `<body>` tags and such.
 
 In order to inject our custom CSS like before, we have to add a
@@ -106,8 +108,15 @@ evernoteTranslator.translate({
     processorPipeline: customPipeline,
     /* ... */
 });
-
 ```
+
+We use the `.insertAfter()` because we want to apply our changes to the DOM
+*after* `htmlWrapper` has done its work. The order of processors in the pipeline
+is important. For example, the `annotationReader` processor parses annotations
+and attaches them as metadata to DOM nodes whilst the very next processor,
+`annotationRemover`, removes the metadata so that it doesn't show up in the
+output file. If you want to make use of the metadata, you'll have to place
+your processor between the `annotationReader` and `annotationRemover`.
 
 ### Dealing with resources
 
@@ -157,3 +166,87 @@ evernoteTranslator.translate({
 With this last option you have the responsibility of writing the resources
 to the file system yourself. You must return the URL for the resource relative
 to the HTML document (or `false`, if you've chosen to ignore the resource).
+
+### The annotation system
+
+The annotation system is a powerful tool when processing documents and making
+them fit for the web. You can annotate a certain line/paragraph/object in your
+Evernote document by writing something of the form `![  ]` on the line above it.
+
+For example, writing this in Evernote:
+
+> !\[hello\]  
+> Some content
+
+...which translates to this HTML code...
+
+```html
+<div>![position: absolute]</div>
+<div>Some content</div>
+```
+
+...which is parsed into this JS object...
+
+```javascript
+[{
+    tag: 'div',
+    children: ['![position: absolute]']
+},{
+    tag: 'div',
+    children: ['Some content']
+}]
+```
+
+After passing through the `annotationReader` the JS object will look like
+this:
+
+```javascript
+[{
+    tag: 'div',
+    children: ['Some content'],
+    annotations: {
+        position: 'absolute'
+    }
+}]
+```
+
+Now, let's write a small processor that uses this annotation to manipulate
+the DOM:
+
+```javascript
+var customPipeline = new evernoteTranslator.ProcessorPipeline();
+customPipeline.insertAfter('annotationReader', {
+    name: 'divPosition',
+    fn: function(dom) {
+        dom.forEach(function(node) {
+
+            if (node.annotations && node.annotations.position) {
+                node.style = 'position: ' + node.annotations.position;
+            }
+
+        });
+
+        return dom;
+    }
+});
+
+evernoteTranslator.translate({
+    /* ... */
+    processorPipeline: customPipeline,
+    /* ... */
+});
+```
+
+The output file will look like this:
+
+```html
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Note Title</title>
+    </head>
+    <body>
+        <div style="position: absolute">Some content</div>
+    </body>
+</html>
+```

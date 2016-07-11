@@ -1,4 +1,4 @@
-function cryptTranslator(dom) {
+function cryptTranslator(dom, metadata, resources, options) {
 	dom.forEach(function(node, i) {
 		if (node.tag === 'en-crypt') {
 			dom[i] = {
@@ -6,7 +6,7 @@ function cryptTranslator(dom) {
 				children: ['[Encrypted in Evernote]']
 			};
 		} else if (node.children) {
-			cryptTranslator(node.children);
+			cryptTranslator(node.children, metadata, resources, options);
 		}
 	});
 

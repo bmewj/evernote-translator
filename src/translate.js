@@ -93,7 +93,7 @@ function translate(options) {
 	// text content: _
 	// children: $$
 
-	parser.parseString(options.inputData, function(err, result) {
+	parser.parseString(options.inputData, async(function(err, result) {
 		if (err) {
 			fail(err);
 			return;
@@ -115,31 +115,33 @@ function translate(options) {
 			// Collect resources
 			var resources = {};
 
-			note['resource'].forEach(function(child) {
-				var buffer = Buffer.from(child['data'][0]._, 'base64');
+			if (note['resource']) {
+				note['resource'].forEach(function(child) {
+					var buffer = Buffer.from(child['data'][0]._, 'base64');
 
-				var fileName = '';
-				if (child['resource-attributes'] && child['resource-attributes'][0]['file-name']) {
-					fileName = child['resource-attributes'][0]['file-name'][0]._;
-				}
+					var fileName = '';
+					if (child['resource-attributes'] && child['resource-attributes'][0]['file-name']) {
+						fileName = child['resource-attributes'][0]['file-name'][0]._;
+					}
 
-				var resource = {
-					fileName: fileName,
-					mimeType: child['mime'][0]._,
-					width: child['width'] ? parseInt(child['width'][0]._, 10) || 0 : 0,
-					height: child['height'] ? parseInt(child['height'][0]._, 10) || 0 : 0,
-					duration: child['duration'] ? parseInt(child['duration'][0]._, 10) || 0 : 0,
-					checksum: md5(buffer)
-				};
+					var resource = {
+						fileName: fileName,
+						mimeType: child['mime'][0]._,
+						width: child['width'] ? parseInt(child['width'][0]._, 10) || 0 : 0,
+						height: child['height'] ? parseInt(child['height'][0]._, 10) || 0 : 0,
+						duration: child['duration'] ? parseInt(child['duration'][0]._, 10) || 0 : 0,
+						checksum: md5(buffer)
+					};
 
-				var url = options.handleResource(resource.fileName, resource.mimeType,
-												 buffer, resource.checksum);
+					var url = options.handleResource(resource.fileName, resource.mimeType,
+													 buffer, resource.checksum);
 
-				if (url !== false) {
-					resource.url = url;
-					resources[resource.checksum] = resource;
-				}
-			});
+					if (url !== false) {
+						resource.url = url;
+						resources[resource.checksum] = resource;
+					}
+				});
+			}
 
 			// Process content
 			var content = note['content'][0]._;
@@ -151,7 +153,7 @@ function translate(options) {
 				charsAsChildren: true
 			});
 
-			parser2.parseString(content, function(err, result) {
+			parser2.parseString(content, async(function(err, result) {
 				if (err) {
 					fail(err);
 					return;
@@ -161,13 +163,13 @@ function translate(options) {
 				try {
 					dom = generateDOM(result['en-note'].$$);
 				} catch (e) {
-					fail('File could not be processed (invalid format).');
+					fail('File could not be processed (invalid format).\nUnderlying error: ' + e.toString());
 					return;
 				}
 
 				options.processorPipeline.processors.forEach(function(processor) {
 					try {
-						dom = processor.fn(dom, metadata, resources);
+						dom = processor.fn(dom, metadata, resources, options);
 					} catch (e) {
 						fail('DOM processing failed on at ' + processor.name + ': ' + e.toString());
 						return;
@@ -175,23 +177,23 @@ function translate(options) {
 				});
 
 				if (options.outputFile) {
-					fs.writeFile(options.outputFile, stringifyDOM(dom), 'utf8', function(err) {
+					fs.writeFile(options.outputFile, stringifyDOM(dom), 'utf8', async(function(err) {
 						if (err) {
 							fail(err);
 						} else if (options.onSuccess) {
 							options.onSuccess();
 						}
-					});
+					}));
 				} else if (options.onSuccess) {
 					options.onSuccess(stringifyDOM(dom));
 				}
-			});
+			}));
 
 		} catch (e) {
-			fail('File could not be processed (invalid format).');
+			fail('File could not be processed (invalid format).\nUnderlying error: ' + e.toString());
 			return;
 		}
-	});
+	}));
 
 }
 

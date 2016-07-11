@@ -1,4 +1,4 @@
-function todoTranslator(dom) {
+function todoTranslator(dom, metadata, resources, options) {
 	dom.forEach(function(node, i) {
 		if (node.tag === 'en-todo') {
 			dom[i] = {

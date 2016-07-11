@@ -1,6 +1,6 @@
 module.exports = {
 	name: 'htmlWrapper',
-	fn: function(dom, metadata) {
+	fn: function(dom, metadata, resources, options) {
 		return [
 			{ tag: '!DOCTYPE', html: true },
 			{

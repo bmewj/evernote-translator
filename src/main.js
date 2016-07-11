@@ -7,6 +7,8 @@ var evernoteTranslator = {
 		mediaTranslator: require('./processors/mediaTranslator'),
 		cryptTranslator: require('./processors/cryptTranslator'),
 		todoTranslator: require('./processors/todoTranslator'),
+		annotationReader: require('./processors/annotationReader'),
+		annotationRemover: require('./processors/annotationRemover'),
 		htmlWrapper: require('./processors/htmlWrapper')
 	}
 };

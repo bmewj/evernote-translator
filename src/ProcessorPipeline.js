@@ -3,7 +3,9 @@ function ProcessorPipeline(copy) {
 		require('./processors/mediaTranslator'),
 		require('./processors/cryptTranslator'),
 		require('./processors/todoTranslator'),
-		require('./processors/htmlWrapper'),
+		require('./processors/annotationReader'),
+		require('./processors/annotationRemover'),
+		require('./processors/htmlWrapper')
 	];
 
 	return this;

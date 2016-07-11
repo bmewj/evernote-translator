@@ -1,4 +1,4 @@
-function mediaTranslator(dom, metadata, resources) {
+function mediaTranslator(dom, metadata, resources, options) {
 	dom.forEach(function(node, i) {
 		if (node.tag === 'en-media') {
 			var resource = resources[node.hash];
@@ -21,7 +21,7 @@ function mediaTranslator(dom, metadata, resources) {
 				dom[i] = '';
 			}
 		} else if (node.children) {
-			mediaTranslator(node.children, metadata, resources);
+			mediaTranslator(node.children, metadata, resources, options);
 		}
 	});
 
