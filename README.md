@@ -269,8 +269,8 @@ an insert on the pages where we want to *insert* a footer.
 
 This will be our Evernote note:
 
-> Some content
-> Some more content
+> Some content  
+> Some more content  
 > !\[footer\]
 
 This is how we can program in our footer insert:
@@ -316,8 +316,8 @@ been replaced with the footer, not just the insert.
 
 Optionally, you can accept a single string argument:
 
-> Some content
-> Some more content
+> Some content  
+> Some more content  
 > !\[footer: small\]
 
 The argument will be passed to your insert function.
