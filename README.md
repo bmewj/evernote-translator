@@ -184,32 +184,35 @@ The following Evernote note,
 ...translates to this HTML code:
 
 ```html
-<div>![position: absolute]</div>
-<div>Some content</div>
+<div>Lorem ipsum</div>
+<div>![hidden message: Hello, there!]</div>
+<div>Dolor sit amet</div>
+<div>Consectetur adipiscing elit</div>
 ```
 
-...is parsed into this JS object:
+And after passing through the `annotationReader` it
+looks like this:
+
+```html
+<div>Lorem ipsum</div>
+<div annotations={'hidden message': 'Hello, there!'}>Dolor sit amet</div>
+<div>Consectetur adipiscing elit</div>
+```
+
+Technically, it won't be HTML, but rather this JS object
+representing the HTML:
 
 ```javascript
 [{
     tag: 'div',
-    children: ['![position: absolute]']
+    children: ['Lorem ipsum']
 },{
     tag: 'div',
-    children: ['Some content']
-}]
-```
-
-After passing through the `annotationReader` the JS object will look like
-this:
-
-```javascript
-[{
+    children: ['Doler sit amet'],
+    annotations: { 'hidden message': 'Hello, there!' }
+},{
     tag: 'div',
-    children: ['Some content'],
-    annotations: {
-        position: 'absolute'
-    }
+    children: ['Consectetur adipiscing elit']
 }]
 ```
 
@@ -219,12 +222,13 @@ the DOM:
 ```javascript
 var customPipeline = new evernoteTranslator.ProcessorPipeline();
 customPipeline.insertAfter('annotationReader', {
-    name: 'divPosition',
+    name: 'hiddenMessageProcessor',
     fn: function(dom) {
         dom.forEach(function(node) {
 
-            if (node.annotations && node.annotations.position) {
-                node.style = 'position: ' + node.annotations.position;
+            if (node.annotations && node.annotations['hidden message']) {
+                var message = node.annotations['hidden message'];
+                node.onclick = 'alert(\'' + message + '\')';
             }
 
         });
@@ -249,7 +253,9 @@ The output file will look like this:
         <title>Note Title</title>
     </head>
     <body>
-        <div style="position: absolute">Some content</div>
+        <div>Lorem ipsum</div>
+        <div onclick="alert('Hello, there!')">Dolor sit amet</div>
+        <div>Consectetur adipiscing elit</div>
     </body>
 </html>
 ```
@@ -258,9 +264,11 @@ Annotations are an incredibly powerful tool for processing documents.
 
 ### Inserts
 
-Annotations are textual ques that apply to line just below the annotation.
+Annotations are textual ques that apply to line directly below the annotation.
 Inserts look exactly like annotations, but instead of applying to the line
-below it, it acts as a que for some other node to be *inserted*.
+below it, it acts as a que for some other node to be *inserted*. In other
+words, you want to replace the line where your `![  ]` insert is written
+with some other element.
 
 #### Example
 
@@ -269,8 +277,8 @@ an insert on the pages where we want to *insert* a footer.
 
 This will be our Evernote note:
 
-> Some content  
-> Some more content  
+> Lorem ipsum  
+> Dolor sit amet  
 > !\[footer\]
 
 This is how we can program in our footer insert:
@@ -298,26 +306,26 @@ With this code, an input like this:
 This note will have the following HTML code:
 
 ```html
-<div>Some content</div>
-<div>Some more content</div>
+<div>Lorem ipsum</div>
+<div>Dolor sit amet</div>
 <div>![footer]</div>
 ```
 
 ...is turned into this...
 
 ```html
-<div>Some content</div>
-<div>Some more content</div>
+<div>Lorem ipsum</div>
+<div>Dolor sit amet</div>
 <footer style="color: #aaa; font-size: 12px;">Footer content!</footer>
 ```
 
 Note that the entire `<div>` that contained the insert has
-been replaced with the footer, not just the insert.
+been replaced with the footer, not just the insert text.
 
 Optionally, you can accept a single string argument:
 
-> Some content  
-> Some more content  
+> Lorem ipsum  
+> Dolor sit amet  
 > !\[footer: small\]
 
 The argument will be passed to your insert function.
