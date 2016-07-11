@@ -281,7 +281,7 @@ This will be our Evernote note:
 
 > Lorem ipsum  
 > Dolor sit amet  
-> !\[footer\]
+> **!\[footer\]**
 
 This is how we can program in our footer insert:
 
@@ -310,7 +310,7 @@ This note will have the following HTML code:
 ```html
 <div>Lorem ipsum</div>
 <div>Dolor sit amet</div>
-<div>![footer]</div>
+<div><b>![footer]</b></div>
 ```
 
 ...is turned into this...
@@ -328,7 +328,7 @@ Optionally, you can accept a single string argument:
 
 > Lorem ipsum  
 > Dolor sit amet  
-> !\[footer: small\]
+> **!\[footer: small\]**
 
 The argument will be passed to your insert function.
 
