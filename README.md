@@ -178,8 +178,10 @@ Evernote document by writing something of the form `![  ]` on the line above it.
 
 The following Evernote note,
 
+> Lorem ipsum  
 > !\[position: absolute\]  
-> Some content
+> Dolor sit amet  
+> Consectetur adipiscing elit
 
 ...translates to this HTML code:
 
