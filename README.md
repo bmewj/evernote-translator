@@ -179,7 +179,7 @@ Evernote document by writing something of the form `![  ]` on the line above it.
 The following Evernote note,
 
 > Lorem ipsum  
-> **!\[position: absolute\]**  
+> **!\[hidden message: Hello there!\]**  
 > Dolor sit amet  
 > Consectetur adipiscing elit
 
