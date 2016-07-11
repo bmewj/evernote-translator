@@ -173,19 +173,21 @@ The annotation system is a powerful tool when processing documents and making
 them fit for the web. You can annotate a certain line/paragraph/object in your
 Evernote document by writing something of the form `![  ]` on the line above it.
 
-For example, writing this in Evernote:
+#### Example
 
-> !\[hello\]  
+The following Evernote note,
+
+> !\[position: absolute\]  
 > Some content
 
-...which translates to this HTML code...
+...translates to this HTML code:
 
 ```html
 <div>![position: absolute]</div>
 <div>Some content</div>
 ```
 
-...which is parsed into this JS object...
+...is parsed into this JS object:
 
 ```javascript
 [{
